@@ -1,29 +1,36 @@
 """
 Helper de compilacion: maneja rutas con espacios y caracteres especiales correctamente.
+La ruta del script fuente esta definida explicitamente porque la carpeta de salida
+y la carpeta del codigo estan en ubicaciones distintas.
 """
 import os
 import sys
 import shutil
 import subprocess
 
-# Carpeta donde esta este script (= Aplicacion_Version_2\)
+# Carpeta de salida: donde esta este script
 OUT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Carpeta del proyecto (un nivel arriba)
-PROJECT_DIR = os.path.dirname(OUT_DIR)
+# Ruta al codigo fuente (puede estar en otra carpeta)
+SCRIPT_PY = os.path.join(
+    os.path.expanduser("~"),
+    "OneDrive", "chamba", "Trabajo IBC", "Zoppas",
+    "Motor XML a Excel", "converter.py"
+)
 
-SCRIPT_PY = os.path.join(PROJECT_DIR, "converter.py")
-LOGO      = os.path.join(PROJECT_DIR, "IBC-Logo-2026_sin_fondo.png")
-APP_NAME  = "Convertidor XML a Excel IBC"
-TEMP_DIR  = os.path.join(OUT_DIR, "build_temp")
+# Ruta al logo (en la misma carpeta que converter.py)
+PROJECT_DIR = os.path.dirname(SCRIPT_PY)
+LOGO        = os.path.join(PROJECT_DIR, "IBC-Logo-2026_sin_fondo.png")
+APP_NAME    = "Convertidor XML a Excel IBC"
+TEMP_DIR    = os.path.join(OUT_DIR, "build_temp")
 
-print(f"\n[INFO] Proyecto : {PROJECT_DIR}")
-print(f"[INFO] Script   : {SCRIPT_PY}")
+print(f"\n[INFO] Script   : {SCRIPT_PY}")
 print(f"[INFO] Salida   : {OUT_DIR}")
 print()
 
 if not os.path.exists(SCRIPT_PY):
-    print(f"ERROR: No se encontro converter.py en {PROJECT_DIR}")
+    print(f"ERROR: No se encontro converter.py en:")
+    print(f"       {SCRIPT_PY}")
     sys.exit(1)
 
 # Argumentos para PyInstaller
@@ -46,7 +53,7 @@ else:
 
 args.append(SCRIPT_PY)
 
-print("[3/4] Compilando con PyInstaller...")
+print("[3/4] Compilando con PyInstaller...\n")
 result = subprocess.run(args, cwd=PROJECT_DIR)
 
 if result.returncode != 0:
@@ -56,7 +63,7 @@ if result.returncode != 0:
 # Limpiar temporales
 if os.path.exists(TEMP_DIR):
     shutil.rmtree(TEMP_DIR, ignore_errors=True)
-    print("[4/4] Temporales eliminados.")
+    print("\n[4/4] Temporales eliminados.")
 
 exe_path = os.path.join(OUT_DIR, APP_NAME + ".exe")
 if os.path.exists(exe_path):
